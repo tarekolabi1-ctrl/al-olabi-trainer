@@ -1,0 +1,534 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>تدريب قيود العلبي</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Tajawal:wght@400;500;700&display=swap">
+<style>
+/* Concept: a ledger notebook. Lined paper for the scenario, a journal-entry sheet to fill, red stamp ink for the brand. */
+:root{
+  --bg:#EEF1EC; --surface:#FAFBF8; --ink:#16262B; --muted:#586A6F; --line:#CFD9D3; --rule:#DCE4DE;
+  --accent:#0D5A4E; --accent-ink:#FFFFFF; --accent-soft:#DDEEE8;
+  --stamp:#B2382B;
+  --ok:#18703F; --ok-bg:#E1F1E7; --bad:#B2382B; --bad-bg:#F8E4E0; --warn:#946000; --warn-bg:#FAEFD3;
+  --display:"Reem Kufi","Tajawal",system-ui,sans-serif; --body:"Tajawal",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:18px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1719; --surface:#172225; --ink:#E5EDE9; --muted:#97A8A6; --line:#2C3C40; --rule:#223136;
+  --accent:#58BBA5; --accent-ink:#06201A; --accent-soft:#1B3A36; --stamp:#EB8676;
+  --ok:#62C98E; --ok-bg:#183626; --bad:#F0907F; --bad-bg:#40211D; --warn:#E8B04E; --warn-bg:#3B2E12; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1719; --surface:#172225; --ink:#E5EDE9; --muted:#97A8A6; --line:#2C3C40; --rule:#223136;
+  --accent:#58BBA5; --accent-ink:#06201A; --accent-soft:#1B3A36; --stamp:#EB8676;
+  --ok:#62C98E; --ok-bg:#183626; --bad:#F0907F; --bad-bg:#40211D; --warn:#E8B04E; --warn-bg:#3B2E12; color-scheme:dark}
+:root[data-size="big"]{font-size:21px}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.6;
+  padding-block:0 3rem;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:46rem;margin:0 auto}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);margin:0;font-weight:700;text-wrap:balance}
+.num,.tab-n{font-variant-numeric:tabular-nums}
+
+/* header */
+.top{display:flex;align-items:center;gap:.9rem;padding-block:1.1rem .8rem;flex-wrap:wrap}
+.stamp{width:3.1rem;height:3.1rem;border-radius:50%;border:3px double var(--stamp);color:var(--stamp);display:grid;place-items:center;
+  font-family:var(--display);font-size:1.6rem;font-weight:700;transform:rotate(-8deg);flex:none;line-height:1}
+.brand{min-width:0;flex:1}
+.brand h1{font-size:1.65rem;line-height:1.2}
+.brand p{margin:0;color:var(--muted);font-size:.85rem}
+.hello{font-family:var(--display);color:var(--accent);font-size:1.05rem}
+.tabs{display:flex;gap:.3rem;border-bottom:2px solid var(--line);margin-bottom:1.1rem;overflow-x:auto}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:.65rem .9rem;font-weight:500;color:var(--muted);min-height:44px;white-space:nowrap}
+.tabs button[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:700}
+
+/* generic */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:1rem 1.1rem}
+.stack{display:flex;flex-direction:column;gap:1rem}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:.55rem 1rem;min-height:46px;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.link{border-color:transparent;background:none;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.pill{display:inline-block;padding:.05rem .65rem;border-radius:99px;font-size:.8rem;font-weight:700;background:var(--accent-soft);color:var(--accent)}
+
+/* today header */
+.daybar{display:flex;justify-content:space-between;align-items:end;gap:.8rem;flex-wrap:wrap;margin-bottom:.8rem}
+.daybar h2{font-size:1.35rem}
+.daybar select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem;min-height:44px}
+.steps{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem}
+.step{width:2.6rem;height:2.6rem;border-radius:50%;border:2px solid var(--line);background:var(--surface);font-weight:700;display:grid;place-items:center;padding:0}
+.step.ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.step.half{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.step.rev{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.step.cur{box-shadow:0 0 0 3px var(--accent)}
+
+/* question */
+.q{padding:0;overflow:hidden}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.7rem 1.1rem;border-bottom:1px solid var(--line);background:var(--accent-soft)}
+.qhead b{font-family:var(--display);color:var(--accent)}
+.qbody{padding:1rem 1.1rem 1.1rem;display:flex;flex-direction:column;gap:1rem}
+.qtext{margin:0;font-size:1.08rem;line-height:1.95rem;
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(1.95rem - 1px),var(--rule) calc(1.95rem - 1px),var(--rule) 1.95rem)}
+.sheet{border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:.7rem .7rem .8rem}
+.sheet-h{display:flex;justify-content:space-between;font-family:var(--display);font-size:.95rem;color:var(--muted);padding:0 .2rem .5rem;border-bottom:3px double var(--line);margin-bottom:.6rem}
+.jcols{display:grid;grid-template-columns:1fr 7.2rem 7.2rem 2.4rem;gap:.5rem;font-size:.8rem;color:var(--muted);padding:0 .1rem .3rem}
+.jrow{display:grid;grid-template-columns:1fr 7.2rem 7.2rem 2.4rem;gap:.5rem;align-items:center;margin-bottom:.5rem}
+.jrow select,.jrow input{width:100%;min-height:46px;border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:.35rem .6rem;min-width:0}
+.jrow input{text-align:center;font-size:1.05rem}
+.jrow.good select,.jrow.good input{border-color:var(--ok);background:var(--ok-bg)}
+.jrow.bad select,.jrow.bad input{border-color:var(--bad);background:var(--bad-bg)}
+.jrow .x{width:2.4rem;height:2.4rem;border-radius:50%;border:1px solid var(--line);background:none;color:var(--muted);padding:0;font-size:1.2rem;line-height:1}
+.jtot{display:flex;justify-content:flex-end;gap:1.2rem;font-size:.9rem;color:var(--muted);padding-top:.2rem}
+.msg{border-radius:6px;padding:.65rem .85rem;font-weight:500}
+.msg.err{background:var(--bad-bg);color:var(--bad)}
+.msg.hint{background:var(--warn-bg);color:var(--warn)}
+.msg.good{background:var(--ok-bg);color:var(--ok)}
+.sol{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line)}
+.sol th,.sol td{padding:.5rem .7rem;border-bottom:1px solid var(--line);text-align:start}
+.sol th{font-size:.85rem;color:var(--muted);font-weight:500;background:var(--bg)}
+.sol td.n{text-align:center;width:6.5rem}
+.sol td.cr-ind{padding-inline-start:2.2rem}
+.why{margin:0;color:var(--ink)}
+.why b{color:var(--accent)}
+.tablewrap{overflow-x:auto}
+.result{display:flex;align-items:center;gap:.6rem;font-weight:700}
+
+/* summary */
+.sum{border:2px solid var(--accent);display:flex;flex-direction:column;gap:.4rem}
+.sum .big{font-family:var(--display);font-size:2.4rem;color:var(--accent);line-height:1.1}
+
+/* progress */
+.bars{display:flex;flex-direction:column;gap:.7rem}
+.bar-l{display:flex;justify-content:space-between;font-size:.92rem;margin-bottom:.2rem}
+.bar{height:.7rem;border-radius:99px;background:var(--rule);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.8rem}
+.kpi b{display:block;font-family:var(--display);font-size:1.9rem;color:var(--accent);line-height:1.2}
+.hist{width:100%;border-collapse:collapse}
+.hist td{padding:.55rem .3rem;border-bottom:1px solid var(--line)}
+
+/* guide */
+.gtable{width:100%;border-collapse:collapse;min-width:30rem}
+.gtable th,.gtable td{padding:.5rem .6rem;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}
+.gtable th{font-size:.85rem;color:var(--muted);font-weight:500}
+.flow{display:flex;flex-direction:column;gap:.5rem}
+.flow .box{border:1px solid var(--line);border-radius:6px;padding:.55rem .8rem;background:var(--bg)}
+.flow .box small{display:block;color:var(--muted)}
+.flow .branches{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:.5rem}
+.flow .arrow{text-align:center;color:var(--stamp);font-size:1.3rem;line-height:1}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{border:1px solid var(--line);border-radius:6px;padding:.15rem .6rem;background:var(--bg);font-size:.92rem}
+.field{display:flex;flex-direction:column;gap:.3rem}
+.field input[type=text]{min-height:46px;border:1px solid var(--line);border-radius:6px;padding:.3rem .6rem;background:var(--bg);max-width:12rem}
+.switch{display:flex;gap:.7rem;align-items:flex-start}
+.switch input{width:1.4rem;height:1.4rem;margin-top:.25rem;accent-color:var(--accent);flex:none}
+
+@media (max-width:560px){
+  .jcols{display:none}
+  .jrow{grid-template-columns:1fr 1fr 2.4rem;grid-template-areas:"acc acc del" "dr cr .";padding-bottom:.6rem;border-bottom:1px dashed var(--line)}
+  .jrow select{grid-area:acc}.jrow .dr{grid-area:dr}.jrow .cr{grid-area:cr}.jrow .x{grid-area:del}
+  .hello{width:100%}
+  .tabs{gap:0}.tabs button{flex:1;padding:.65rem .3rem;font-size:.92rem}
+}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .5s}}
+</style>
+
+<div class="wrap" dir="rtl" lang="ar">
+  <header class="top">
+    <div class="stamp" aria-hidden="true">ع</div>
+    <div class="brand">
+      <h1>مؤسسة العلبي</h1>
+      <p>لتجارة الأجهزة المنزلية بالجملة · مدرّب القيود اليومية</p>
+    </div>
+    <div class="hello">أهلاً أبو طارق</div>
+  </header>
+  <nav class="tabs" id="tabs" aria-label="الأقسام"></nav>
+  <main id="view"></main>
+</div>
+
+<script>
+document.documentElement.dir='rtl';document.documentElement.lang='ar';
+
+/* ---------- بيانات أساسية ---------- */
+const ACCTS=[
+ {g:'الأصول',nat:'مدين',items:[['cash','الصندوق'],['bank','البنك'],['ar','العملاء (ذمم مدينة)'],['notesR','أوراق القبض (شيكات آجلة لنا)'],['inv','المخزون (بضاعة)']]},
+ {g:'الخصوم',nat:'دائن',items:[['ap','الموردون (ذمم دائنة)'],['notesP','أوراق الدفع (شيكات آجلة علينا)'],['accrued','مصاريف مستحقة']]},
+ {g:'حقوق الملكية',nat:'دائن (والمسحوبات مدين)',items:[['capital','رأس المال'],['drawings','المسحوبات الشخصية']]},
+ {g:'الإيرادات',nat:'دائن',items:[['sales','المبيعات'],['purchDisc','خصم مكتسب']]},
+ {g:'مقابِلات المبيعات',nat:'مدين',items:[['salesRet','مردودات المبيعات'],['salesDisc','خصم مسموح به']]},
+ {g:'التكاليف والمصاريف',nat:'مدين',items:[['cogs','تكلفة البضاعة المباعة'],['rent','إيجار'],['salaries','رواتب وأجور'],['utilities','كهرباء وماء واتصالات'],['transportOut','نقل وتوصيل المبيعات'],['bankFees','عمولات بنكية']]}
+];
+const ANAME={};ACCTS.forEach(g=>g.items.forEach(([k,v])=>ANAME[k]=v));
+const CATS={sales:'المبيعات',returns:'المردودات',pdc:'الشيكات الآجلة',pay:'التحصيل والسداد',buy:'المشتريات',other:'المصاريف والبنك'};
+const CUST=['مصطفى عاصي','أحمد عبد الغني','محمود منصور','جرجس رزوق','ماضي الرشيد','عبدالله الشامي','معن العلي','بول شريكي','عبدالله ونوس','مصطفى السوريتي','وجيه الشاعر','عبد الحق مدور','موسى الصبروجي','المعدماني','صبحي علايا','سامي لطيش','ديجيتال هاوس'];
+const SUPP=['شركة الأنوار','رامكو','ميراكو','المنارة','شارب','مسلّم السبيعي','ستارميكس','مولينكس'];
+const PRODUCTS=[['غسالة أوتوماتيك 8 كغ',280,420],['غسالة نصف أوتوماتيك',150,230],['فرن غاز 5 شعلات',220,380],['فرن كهربائي',90,180],['ماكينة إزالة الشعر',25,60],['خلاط كهربائي',30,70],['مفرمة لحم',45,95],['محضرة طعام',60,130],['مكواة بخار',25,55],['قلاية هوائية',50,110],['مكنسة كهربائية',55,140],['ميكروويف',80,170],['غلاية كهربائية',12,30],['براد (ثلاجة)',300,600],['محمصة خبز',15,40],['سشوار شعر',12,35],['ماكينة قهوة',40,120]];
+
+const AR_DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const AR_MON=['كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول'];
+
+/* ---------- أدوات ---------- */
+const fmt=n=>Number(Math.round(n*100)/100).toLocaleString('en-US');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+function num(s){if(s==null)return 0;s=String(s).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/٫/g,'.').replace(/[,٬\s]/g,'');const v=parseFloat(s);return isFinite(v)&&v>0?v:0}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function baseOf(d){return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`}
+function dateOfBase(b){return new Date(+b.slice(0,4),+b.slice(4,6)-1,+b.slice(6,8))}
+function longDate(b){const d=dateOfBase(b);return `${AR_DAYS[d.getDay()]} ${d.getDate()} ${AR_MON[d.getMonth()]} ${d.getFullYear()}`}
+function net(lines){const o={};lines.forEach(([a,s,v])=>{o[a]=(o[a]||0)+(s==='d'?v:-v)});return o}
+
+/* ---------- مولّد العمليات ---------- */
+function makeSet(base,n,opt){
+  const rnd=mulberry32((+base*97+n*7919)>>>0);
+  const ri=(a,b)=>a+Math.floor(rnd()*(b-a+1));
+  const pick=a=>a[Math.floor(rnd()*a.length)];
+  const r5=x=>Math.round(x/5)*5;
+  const amt=(lo,hi,st)=>lo+ri(0,Math.floor((hi-lo)/st))*st;
+  const m=x=>`${fmt(x)} ${opt.cur}`;
+  const cogs=opt.cogs;
+  const Y=+base.slice(0,4),M=+base.slice(4,6),D=+base.slice(6,8);
+  const due=()=>{const d=new Date(Y,M-1,D+pick([30,45,60,90,120]));return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`};
+  const chq=()=>ri(100000,999999);
+  const fix=(d,q)=>{d.q=q;d.tot=q*d.p;d.ct=q*d.cu;return d};
+  const deal=()=>{const p=pick(PRODUCTS);const price=Math.max(10,r5(ri(p[1],p[2])));const q=price>=200?ri(2,8):price>=60?ri(4,20):ri(10,40);return fix({n:p[0],p:price,cu:Math.round(price*(0.72+rnd()*0.13))},q)};
+  const ct=d=>cogs?` وتبلغ تكلفة هذه البضاعة علينا ${m(d.ct)}.`:'';
+  const cl=d=>cogs?[['cogs','d',d.ct],['inv','c',d.ct]]:[];
+  const rl=d=>cogs?[['inv','d',d.ct],['cogs','c',d.ct]]:[];
+  const cw=cogs?' وبنظام الجرد المستمر تنتقل تكلفة البضاعة من المخزون (دائن) إلى تكلفة البضاعة المباعة (مدين).':'';
+  const rw=cogs?' وتعود البضاعة إلى المخزون بتكلفتها (المخزون مدين) وتنقص تكلفة البضاعة المباعة (دائن).':'';
+
+  const B={
+    cashSale(){const d=deal(),c=pick(CUST);return{cat:'sales',title:'بيع نقدي',
+      text:`بعنا إلى ${c} ${d.q} قطعة من «${d.n}» بسعر ${m(d.p)} للقطعة، وقبضنا الثمن نقداً.${ct(d)}`,
+      lines:[['cash','d',d.tot],['sales','c',d.tot],...cl(d)],
+      why:`البيع النقدي يزيد الصندوق (مدين) وتزيد المبيعات (دائن).${cw}`}},
+    creditSale(){const d=deal(),c=pick(CUST);return{cat:'sales',title:'بيع آجل',
+      text:`بعنا إلى ${c} بالآجل ${d.q} قطعة من «${d.n}» بسعر ${m(d.p)} للقطعة، وقيّدنا المبلغ على حسابه.${ct(d)}`,
+      lines:[['ar','d',d.tot],['sales','c',d.tot],...cl(d)],
+      why:`البيع الآجل يزيد ذمة العميل (العملاء مدين) وتزيد المبيعات (دائن).${cw}`}},
+    bankSale(){const d=deal(),c=pick(CUST);return{cat:'sales',title:'بيع بتحويل بنكي',
+      text:`بعنا إلى ${c} ${d.q} قطعة من «${d.n}» بسعر ${m(d.p)} للقطعة، وحوّل لنا الثمن إلى حسابنا في البنك.${ct(d)}`,
+      lines:[['bank','d',d.tot],['sales','c',d.tot],...cl(d)],
+      why:`المبلغ دخل البنك مباشرة، فالبنك مدين والمبيعات دائن.${cw}`}},
+    mixedSale(){const d=deal(),c=pick(CUST);const cash=Math.max(5,r5(d.tot*pick([.3,.4,.5,.6])));const rest=d.tot-cash;
+      return{cat:'sales',title:'بيع بدفع جزئي',
+      text:`بعنا إلى ${c} ${d.q} قطعة من «${d.n}» بسعر ${m(d.p)} للقطعة (الإجمالي ${m(d.tot)}). دفع ${m(cash)} نقداً والباقي على حسابه.${ct(d)}`,
+      lines:[['cash','d',cash],['ar','d',rest],['sales','c',d.tot],...cl(d)],
+      why:`كامل قيمة الفاتورة تُسجَّل في المبيعات (دائن)، وما قُبض نقداً يزيد الصندوق (مدين)، والباقي ذمة على العميل (مدين).${cw}`}},
+    pdcSale(){const d=deal(),c=pick(CUST);const ch=Math.max(5,r5(d.tot*pick([.5,.6,.7])));const rest=d.tot-ch;
+      return{cat:'pdc',title:'بيع بشيك آجل',
+      text:`بعنا إلى ${c} ${d.q} قطعة من «${d.n}» بسعر ${m(d.p)} للقطعة (الإجمالي ${m(d.tot)}). استلمنا شيكاً آجلاً رقم ${chq()} بمبلغ ${m(ch)} يستحق بتاريخ ${due()}، والباقي ${m(rest)} قبضناه نقداً.${ct(d)}`,
+      lines:[['notesR','d',ch],['cash','d',rest],['sales','c',d.tot],...cl(d)],
+      why:`الشيك الآجل لا يُعدّ نقداً بل يُسجَّل في أوراق القبض (مدين) إلى أن يحين استحقاقه. والباقي النقدي يزيد الصندوق.${cw}`}},
+    salesReturnCredit(){const d=deal(),c=pick(CUST);fix(d,Math.max(1,Math.min(ri(1,3),d.q)));
+      return{cat:'returns',title:'مردودات مبيعات',
+      text:`أرجع إلينا ${c} ${d.q} قطعة من «${d.n}» كان قد اشتراها منا بسعر ${m(d.p)} للقطعة، والبضاعة سليمة وعادت إلى المستودع، وخصمنا قيمتها من حسابه.${cogs?` وتكلفتها علينا ${m(d.ct)}.`:''}`,
+      lines:[['salesRet','d',d.tot],['ar','c',d.tot],...rl(d)],
+      why:`مردودات المبيعات حساب مقابل للمبيعات يُسجَّل مدين (لا ننقص حساب المبيعات نفسه)، ويقل رصيد العميل (دائن).${rw}`}},
+    salesReturnCash(){const d=deal(),c=pick(CUST);fix(d,Math.max(1,Math.min(ri(1,2),d.q)));
+      return{cat:'returns',title:'مردودات مبيعات نقدية',
+      text:`أرجع إلينا ${c} ${d.q} قطعة من «${d.n}» اشتراها نقداً بسعر ${m(d.p)} للقطعة، فرددنا له ثمنها نقداً وعادت البضاعة السليمة إلى المستودع.${cogs?` وتكلفتها علينا ${m(d.ct)}.`:''}`,
+      lines:[['salesRet','d',d.tot],['cash','c',d.tot],...rl(d)],
+      why:`مردودات المبيعات مدين، ونقص الصندوق لأننا ردَدنا المال (دائن).${rw}`}},
+    purchaseReturn(){const d=deal(),s=pick(SUPP);fix(d,Math.max(1,Math.min(ri(1,3),d.q)));const t=d.q*d.cu;
+      return{cat:'returns',title:'مردودات مشتريات',
+      text:`أعدنا إلى المورد ${s} ${d.q} قطعة من «${d.n}» لوجود عيب مصنعي، بسعر شرائها ${m(d.cu)} للقطعة، وخصم المورد قيمتها من حسابنا.`,
+      lines:[['ap','d',t],['inv','c',t]],
+      why:'إرجاع بضاعة للمورد ينقص ما نَدين به له (الموردون مدين)، وينقص المخزون (دائن).'}},
+    receiveCheque(){const c=pick(CUST),a=amt(1000,12000,100);return{cat:'pdc',title:'استلام شيك آجل',
+      text:`استلمنا من ${c} شيكاً آجلاً رقم ${chq()} بمبلغ ${m(a)} يستحق بتاريخ ${due()}، سداداً لجزء من حسابه.`,
+      lines:[['notesR','d',a],['ar','c',a]],
+      why:'الشيك الآجل لا يدخل البنك الآن: نُسجله في أوراق القبض (مدين)، وتنقص ذمة العميل (دائن).'}},
+    chequeCollected(){const c=pick(CUST),a=amt(1000,12000,100);return{cat:'pdc',title:'تحصيل شيك آجل',
+      text:`حلّ اليوم موعد استحقاق شيك العميل ${c} رقم ${chq()} بمبلغ ${m(a)}، وقد حصّله البنك وأضاف المبلغ إلى حسابنا.`,
+      lines:[['bank','d',a],['notesR','c',a]],
+      why:'عند التحصيل يزيد رصيد البنك (مدين) وتنقص أوراق القبض (دائن).'}},
+    chequeBounced(){const c=pick(CUST),a=amt(1000,9000,100);return{cat:'pdc',title:'شيك مرتجع',
+      text:`ارتد شيك العميل ${c} رقم ${chq()} بمبلغ ${m(a)} بسبب عدم كفاية الرصيد، فأعدنا المبلغ إلى حسابه.`,
+      lines:[['ar','d',a],['notesR','c',a]],
+      why:'عند ارتداد الشيك تنقص أوراق القبض (دائن) وتعود الذمة على العميل (العملاء مدين).'}},
+    endorseCheque(){const c=pick(CUST),s=pick(SUPP),a=amt(1000,10000,100);return{cat:'pdc',title:'تظهير شيك',
+      text:`ظهّرنا إلى المورد ${s} شيك العميل ${c} رقم ${chq()} بمبلغ ${m(a)} (يستحق بتاريخ ${due()}) سداداً لجزء من حسابه.`,
+      lines:[['ap','d',a],['notesR','c',a]],
+      why:'التظهير يعني تسليم شيك العميل للمورد: ينقص رصيد المورد (مدين) وتنقص أوراق القبض (دائن). لا يمر بالصندوق ولا بالبنك.'}},
+    issueCheque(){const s=pick(SUPP),a=amt(1000,15000,100);return{cat:'pdc',title:'إصدار شيك آجل',
+      text:`أصدرنا للمورد ${s} شيكاً آجلاً مسحوباً على البنك رقم ${chq()} بمبلغ ${m(a)} يستحق بتاريخ ${due()}، سداداً من حسابه.`,
+      lines:[['ap','d',a],['notesP','c',a]],
+      why:'إصدار الشيك الآجل ينقص رصيد المورد (مدين) ويُنشئ التزاماً علينا في أوراق الدفع (دائن) إلى أن يُصرف الشيك.'}},
+    issuedChequeCleared(){const s=pick(SUPP),a=amt(1000,15000,100);return{cat:'pdc',title:'صرف شيك صادر',
+      text:`صرف البنك اليوم شيكنا رقم ${chq()} بمبلغ ${m(a)} المسحوب لصالح المورد ${s}.`,
+      lines:[['notesP','d',a],['bank','c',a]],
+      why:'عند الصرف ينقص التزامنا في أوراق الدفع (مدين) وينقص رصيد البنك (دائن).'}},
+    custPayCash(){const c=pick(CUST),a=amt(500,8000,100);return{cat:'pay',title:'تحصيل نقدي',
+      text:`قبضنا نقداً من ${c} مبلغ ${m(a)} دفعة على حسابه.`,
+      lines:[['cash','d',a],['ar','c',a]],why:'القبض يزيد الصندوق (مدين) وينقص ذمة العميل (دائن).'}},
+    custPayBank(){const c=pick(CUST),a=amt(500,9000,100);return{cat:'pay',title:'تحصيل بتحويل بنكي',
+      text:`حوّل لنا ${c} مبلغ ${m(a)} إلى حسابنا في البنك دفعة على حسابه.`,
+      lines:[['bank','d',a],['ar','c',a]],why:'المبلغ دخل البنك (مدين) وانخفضت ذمة العميل (دائن).'}},
+    custPayDiscount(){const c=pick(CUST),inv=amt(2000,9000,500),dsc=r5(inv*pick([.02,.03,.05]));return{cat:'pay',title:'تحصيل مع خصم',
+      text:`سدّد ${c} فاتورة بمبلغ ${m(inv)} نقداً قبل موعدها، فمنحناه خصماً مسموحاً به ${m(dsc)}، ودفع ${m(inv-dsc)}.`,
+      lines:[['cash','d',inv-dsc],['salesDisc','d',dsc],['ar','c',inv]],
+      why:'الخصم المسموح به مصروف علينا (مدين) لأننا تنازلنا عنه، وتُقفل ذمة العميل بالكامل (دائن).'}},
+    paySupplierCash(){const s=pick(SUPP),a=amt(500,8000,100);return{cat:'pay',title:'سداد مورد نقداً',
+      text:`دفعنا نقداً إلى المورد ${s} مبلغ ${m(a)} دفعة على حسابه.`,
+      lines:[['ap','d',a],['cash','c',a]],why:'السداد ينقص ما نَدين به للمورد (مدين) وينقص الصندوق (دائن).'}},
+    paySupplierBank(){const s=pick(SUPP),a=amt(1000,12000,100);return{cat:'pay',title:'سداد مورد بالبنك',
+      text:`حوّلنا من البنك إلى المورد ${s} مبلغ ${m(a)} دفعة على حسابه.`,
+      lines:[['ap','d',a],['bank','c',a]],why:'السداد ينقص ذمة المورد (مدين) وينقص رصيد البنك (دائن).'}},
+    supplierDiscount(){const s=pick(SUPP),inv=amt(3000,12000,500),dsc=r5(inv*pick([.02,.03]));return{cat:'pay',title:'سداد مع خصم مكتسب',
+      text:`سددنا للمورد ${s} فاتورة بمبلغ ${m(inv)} بتحويل من البنك قبل موعدها، فمنحنا خصماً ${m(dsc)}، ودفعنا ${m(inv-dsc)}.`,
+      lines:[['ap','d',inv],['bank','c',inv-dsc],['purchDisc','c',dsc]],
+      why:'الخصم المكتسب إيراد لنا (دائن) لأننا دفعنا أقل من ذمة المورد، وتُقفل ذمته بالكامل (مدين).'}},
+    purchaseCredit(){const d=deal(),s=pick(SUPP);const t=d.q*d.cu;return{cat:'buy',title:'شراء آجل',
+      text:`اشترينا بالآجل من ${s} ${d.q} قطعة من «${d.n}» بسعر ${m(d.cu)} للقطعة.`,
+      lines:[['inv','d',t],['ap','c',t]],
+      why:'نعتمد الجرد المستمر: الشراء يزيد المخزون مباشرة (مدين)، والشراء الآجل يزيد ذمة المورد (دائن).'}},
+    purchaseCash(){const d=deal(),s=pick(SUPP);const t=d.q*d.cu;return{cat:'buy',title:'شراء نقدي',
+      text:`اشترينا نقداً من ${s} ${d.q} قطعة من «${d.n}» بسعر ${m(d.cu)} للقطعة.`,
+      lines:[['inv','d',t],['cash','c',t]],
+      why:'الشراء يزيد المخزون (مدين) والدفع النقدي ينقص الصندوق (دائن).'}},
+    freightIn(){const s=pick(SUPP),a=amt(100,900,50);return{cat:'buy',title:'أجور شحن مشتريات',
+      text:`دفعنا نقداً أجور شحن وتخليص لبضاعة مشتراة من ${s} بمبلغ ${m(a)}.`,
+      lines:[['inv','d',a],['cash','c',a]],
+      why:'أجور شحن المشتريات جزء من تكلفة البضاعة، فتُضاف إلى المخزون (مدين) لا إلى المصاريف.'}},
+    expense(){const E=[['rent','أجرة المعرض والمستودع عن الشهر',800,3000,50],['salaries','رواتب الموظفين',600,4000,50],['utilities','فاتورة الكهرباء والماء',80,400,10],['transportOut','أجور نقل وتوصيل بضاعة للعملاء',50,300,10],['bankFees','عمولات وأجور بنكية',10,60,5]];
+      const e=pick(E),a=amt(e[2],e[3],e[4]),viaBank=e[0]==='bankFees'||rnd()<.45;
+      return{cat:'other',title:'مصروف',
+      text:e[0]==='bankFees'?`خصم البنك من حسابنا ${m(a)} عمولات وأجوراً بنكية.`:`دفعنا ${e[1]} بمبلغ ${m(a)} ${viaBank?'بتحويل من البنك':'نقداً'}.`,
+      lines:[[e[0],'d',a],[viaBank?'bank':'cash','c',a]],
+      why:`المصروف يُسجَّل مدين، والدفع ينقص ${viaBank?'البنك':'الصندوق'} (دائن).`}},
+    accrued(){const E=[['utilities','فاتورة كهرباء وماء',100,450,10],['rent','أجرة المعرض عن الشهر',800,3000,50],['salaries','رواتب الشهر',800,4000,50]];
+      const e=pick(E),a=amt(e[2],e[3],e[4]);return{cat:'other',title:'مصروف مستحق',
+      text:`وصلتنا ${e[1]} بمبلغ ${m(a)} ولم ندفعها بعد.`,
+      lines:[[e[0],'d',a],['accrued','c',a]],
+      why:'المصروف استُحق فيُسجَّل مدين، ولأنه لم يُدفع ننشئ التزاماً (مصاريف مستحقة دائن).'}},
+    depositCash(){const a=amt(1000,10000,500);return{cat:'other',title:'إيداع في البنك',
+      text:`أودعنا في حسابنا البنكي مبلغ ${m(a)} من الصندوق.`,
+      lines:[['bank','d',a],['cash','c',a]],why:'البنك زاد (مدين) والصندوق نقص (دائن).'}},
+    withdrawCash(){const a=amt(500,6000,500);return{cat:'other',title:'سحب من البنك',
+      text:`سحبنا من البنك مبلغ ${m(a)} نقداً للصندوق.`,
+      lines:[['cash','d',a],['bank','c',a]],why:'الصندوق زاد (مدين) والبنك نقص (دائن).'}},
+    ownerDrawing(){const a=amt(200,1500,50);return{cat:'other',title:'مسحوبات شخصية',
+      text:`أخذ صاحب المؤسسة من الصندوق مبلغ ${m(a)} لمصروفه الشخصي.`,
+      lines:[['drawings','d',a],['cash','c',a]],
+      why:'مسحوبات صاحب المؤسسة ليست مصروفاً على العمل، بل تخفيض لحقوق الملكية: المسحوبات الشخصية مدين والصندوق دائن.'}}
+  };
+
+  const G={
+    sales:['cashSale','creditSale','bankSale','mixedSale','pdcSale','cashSale','creditSale'],
+    ret:['salesReturnCredit','salesReturnCredit','salesReturnCash'],
+    pdc:['receiveCheque','receiveCheque','chequeCollected','chequeBounced','endorseCheque','issueCheque','issueCheque','issuedChequeCleared'],
+    pay:['custPayCash','custPayBank','custPayDiscount','paySupplierCash','paySupplierBank','supplierDiscount'],
+    buy:['purchaseCredit','purchaseCredit','purchaseCash','freightIn'],
+    other:['expense','expense','accrued','depositCash','withdrawCash','ownerDrawing']
+  };
+  const used=new Set();
+  const take=(arr)=>{let n;let g=0;do{n=pick(arr);g++}while(used.has(n)&&g<30);used.add(n);return n};
+  const names=[take(G.sales),take(G.sales),take(G.sales),take(G.ret),take(G.pdc),take(G.pdc),take(G.pay),take(G.buy),take(G.other)];
+  names.push(pick([...Object.keys(B),'purchaseReturn','receiveCheque','issueCheque']));
+  for(let i=names.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
+  return names.map(k=>{const q=B[k]();q.id=k;return q});
+}
+
+/* ---------- الحالة والتخزين ---------- */
+const LS='olabi-accounting-v1';
+const DEF={cur:'$',cogs:true,big:false};
+let store={settings:{...DEF},sets:{},extras:{}};
+try{const s=JSON.parse(localStorage.getItem(LS)||'null');if(s){store=Object.assign(store,s);store.settings=Object.assign({},DEF,s.settings)}}catch(e){}
+function save(){try{localStorage.setItem(LS,JSON.stringify(store))}catch(e){}}
+function applySize(){document.documentElement.dataset.size=store.settings.big?'big':'normal'}
+
+let view='today',activeN=0,curQ=null,confirmReset=false;
+const drafts={};
+const todayBase=()=>baseOf(new Date());
+const setKey=(b,n)=>`${b}-${n}-${store.settings.cogs?1:0}`;
+function curSet(){const b=todayBase(),k=setKey(b,activeN);
+  if(!store.sets[k])store.sets[k]={base:b,n:activeN,res:{}};
+  return{key:k,rec:store.sets[k],qs:makeSet(b,activeN,store.settings),base:b}}
+const draftOf=(k,i)=>drafts[k+'/'+i]||(drafts[k+'/'+i]={rows:[{acc:'',dr:'',cr:''},{acc:'',dr:'',cr:''}],att:0,hint:false,flags:[],msg:null});
+
+/* ---------- التحقق ---------- */
+function checkEntry(q,rows){
+  const used=rows.map((r,i)=>({...r,i})).filter(r=>r.acc||r.dr||r.cr);
+  if(!used.length)return{err:'اكتب القيد أولاً: اختر الحسابات واكتب المبالغ.'};
+  for(const r of used){
+    if(!r.acc)return{err:'اختر اسم الحساب في كل سطر.'};
+    if((num(r.dr)>0)===(num(r.cr)>0))return{err:'في كل سطر اكتب المبلغ في خانة واحدة فقط: «مدين» أو «دائن».'};
+  }
+  const td=used.reduce((s,r)=>s+num(r.dr),0),tc=used.reduce((s,r)=>s+num(r.cr),0);
+  if(Math.abs(td-tc)>0.005)return{err:`القيد غير متوازن: مجموع المدين ${fmt(td)} ومجموع الدائن ${fmt(tc)}. في القيد المزدوج يجب أن يتساوى الطرفان.`};
+  const exp=net(q.lines);
+  const got=net(used.map(r=>num(r.dr)>0?[r.acc,'d',num(r.dr)]:[r.acc,'c',num(r.cr)]));
+  const keys=new Set([...Object.keys(exp),...Object.keys(got)]);
+  let ok=true;keys.forEach(k=>{if(Math.abs((exp[k]||0)-(got[k]||0))>0.005)ok=false});
+  const flags=rows.map(()=>null);
+  used.forEach(r=>{flags[r.i]=(r.acc in exp&&Math.abs(exp[r.acc]-(got[r.acc]||0))<0.005)?'good':'bad'});
+  const good=flags.filter(f=>f==='good').length;
+  const missing=Object.keys(exp).some(k=>!(k in got));
+  return{ok,flags,good,total:used.length,missing};
+}
+
+/* ---------- العرض ---------- */
+const TABS=[['today','تمرين اليوم'],['progress','إنجازي'],['guide','دليل الحسابات'],['settings','الإعدادات']];
+function renderTabs(){document.getElementById('tabs').innerHTML=TABS.map(([k,l])=>`<button data-act="tab" data-v="${k}" ${view===k?'aria-current="page"':''}>${l}</button>`).join('')}
+function accOptions(sel){return `<option value="">اختر الحساب…</option>`+ACCTS.map(g=>`<optgroup label="${g.g}">${g.items.map(([k,v])=>`<option value="${k}" ${k===sel?'selected':''}>${v}</option>`).join('')}</optgroup>`).join('')}
+
+function solutionTable(q){
+  const merged=[];q.lines.forEach(([a,s,v])=>{const f=merged.find(x=>x.a===a&&x.s===s);f?f.v+=v:merged.push({a,s,v})});
+  merged.sort((x,y)=>(x.s==='d'?0:1)-(y.s==='d'?0:1));
+  return `<div class="tablewrap"><table class="sol"><thead><tr><th>الحساب</th><th class="n">مدين</th><th class="n">دائن</th></tr></thead><tbody>`+
+   merged.map(x=>`<tr><td class="${x.s==='c'?'cr-ind':''}">${x.s==='c'?'إلى ح/ ':'من ح/ '}${ANAME[x.a]}</td><td class="n num">${x.s==='d'?fmt(x.v):''}</td><td class="n num">${x.s==='c'?fmt(x.v):''}</td></tr>`).join('')+`</tbody></table></div>`;
+}
+
+function questionHTML(S,i){
+  const q=S.qs[i],res=S.rec.res[i],dr=draftOf(S.key,i);
+  const head=`<div class="qhead"><b>العملية ${i+1} من 10</b><span class="pill">${q.title}</span></div>`;
+  let body=`<p class="qtext">${esc(q.text)}</p>`;
+  if(res){
+    const label=res.rev?'عرضتَ الحل — لا نقاط لهذه العملية':res.pts===1?'أحسنت! قيد صحيح من أول محاولة (نقطة كاملة)':'قيد صحيح (نصف نقطة)';
+    const cls=res.rev?'err':res.pts===1?'good':'hint';
+    body+=`<div class="msg ${cls}">${label}</div><div><div class="muted" style="margin-bottom:.4rem">القيد الصحيح</div>${solutionTable(q)}</div><p class="why"><b>لماذا؟</b> ${q.why}</p>`;
+    body+=`<div class="row"><button class="btn primary" data-act="next">${i<9?'العملية التالية ←':'إنهاء'}</button></div>`;
+  }else{
+    const rows=dr.rows.map((r,k)=>`<div class="jrow ${dr.flags[k]||''}" data-i="${k}">
+      <select class="acc" data-f="acc" aria-label="الحساب">${accOptions(r.acc)}</select>
+      <input class="dr num" data-f="dr" inputmode="decimal" autocomplete="off" placeholder="مدين" aria-label="مدين" value="${esc(r.dr)}">
+      <input class="cr num" data-f="cr" inputmode="decimal" autocomplete="off" placeholder="دائن" aria-label="دائن" value="${esc(r.cr)}">
+      ${dr.rows.length>2?`<button class="x" data-act="del" aria-label="حذف السطر">×</button>`:'<span></span>'}</div>`).join('');
+    const td=dr.rows.reduce((s,r)=>s+num(r.dr),0),tc=dr.rows.reduce((s,r)=>s+num(r.cr),0);
+    body+=`<div class="sheet"><div class="sheet-h"><span>قيد يومية</span><span>${esc(longDate(S.base))}</span></div>
+      <div class="jcols"><span>الحساب</span><span>مدين</span><span>دائن</span><span></span></div>${rows}
+      <div class="jtot num" id="jtot">مجموع المدين: <b>${fmt(td)}</b> <span>مجموع الدائن: <b>${fmt(tc)}</b></span></div></div>`;
+    if(dr.hint){const names=[...new Set(q.lines.map(l=>ANAME[l[0]]))];body+=`<div class="msg hint">تلميح: القيد يضم ${names.length===2?'حسابين':names.length+' حسابات'}: ${names.join('، ')}</div>`}
+    if(dr.msg)body+=`<div class="msg ${dr.msg.t}">${dr.msg.s}</div>`;
+    body+=`<div class="row"><button class="btn primary" data-act="check">تحقق من القيد</button><button class="btn" data-act="add">+ إضافة سطر</button><button class="btn" data-act="hint" ${dr.hint?'disabled':''}>تلميح</button><button class="btn link" data-act="reveal">اعرض لي الحل</button></div>`;
+  }
+  return `<article class="card q">${head}<div class="qbody">${body}</div></article>`;
+}
+
+function renderToday(){
+  const S=curSet(),done=Object.keys(S.rec.res).length;
+  if(curQ===null||curQ>9){curQ=0;for(let i=0;i<10;i++){if(!S.rec.res[i]){curQ=i;break}}}
+  const pts=Object.values(S.rec.res).reduce((s,r)=>s+r.pts,0);
+  const ex=store.extras[S.base]||0;
+  const picker=ex>0?`<select id="setpick" aria-label="اختيار التمرين">${Array.from({length:ex+1},(_,n)=>`<option value="${n}" ${n===activeN?'selected':''}>${n===0?'تمرين اليوم':'تمرين إضافي '+n}</option>`).join('')}</select>`:'';
+  let h=`<div class="daybar"><div><h2>${longDate(S.base)}</h2><div class="muted">أنجزت <b class="num">${done}</b> من 10 · النقاط <b class="num">${fmt(pts)}</b></div></div><div class="row">${picker}<button class="btn" data-act="extra">تمرين إضافي</button></div></div>`;
+  h+=`<div class="steps" role="group" aria-label="العمليات">`+Array.from({length:10},(_,i)=>{const r=S.rec.res[i];const c=r?(r.rev?'rev':r.pts===1?'ok':'half'):'';return `<button class="step num ${c} ${i===curQ?'cur':''}" data-act="goto" data-i="${i}" aria-label="العملية ${i+1}">${i+1}</button>`}).join('')+`</div>`;
+  h+=`<div class="stack">`;
+  if(done===10){
+    const msg=pts>=9?'ما شاء الله! أداء ممتاز يا أبو طارق.':pts>=7?'جيد جداً، قليل من المراجعة ويكتمل الإتقان.':pts>=5?'بداية جيدة، راجع دليل الحسابات وأعد المحاولة.':'لا بأس، التكرار هو الطريق. جرّب تمريناً إضافياً بعد مراجعة الدليل.';
+    h+=`<section class="card sum"><div class="muted">نتيجة التمرين</div><div class="big num">${fmt(pts)} / 10</div><div>${msg}</div><div class="row" style="margin-top:.4rem"><button class="btn primary" data-act="extra">تمرين إضافي</button><button class="btn" data-act="tab" data-v="progress">عرض إنجازي</button></div></section>`;
+  }
+  h+=questionHTML(S,curQ)+`</div>`;
+  return h;
+}
+
+function stats(){
+  const cats={};let qn=0,qp=0;const days=new Set();const list=[];
+  Object.entries(store.sets).forEach(([k,s])=>{const rs=Object.values(s.res||{});if(!rs.length)return;days.add(s.base);let p=0;
+    rs.forEach(r=>{p+=r.pts;qn++;qp+=r.pts;const c=cats[r.cat]||(cats[r.cat]={n:0,p:0});c.n++;c.p+=r.pts});
+    list.push({base:s.base,n:s.n,done:rs.length,pts:p})});
+  list.sort((a,b)=>b.base.localeCompare(a.base)||b.n-a.n);
+  let streak=0;const d=new Date();if(!days.has(baseOf(d)))d.setDate(d.getDate()-1);
+  while(days.has(baseOf(d))){streak++;d.setDate(d.getDate()-1)}
+  return{cats,qn,qp,days:days.size,list,streak};
+}
+function renderProgress(){
+  const s=stats();
+  if(!s.qn)return `<div class="card"><h2>إنجازي</h2><p class="muted">لم تحلّ أي عملية بعد. ابدأ من «تمرين اليوم» وستظهر هنا نتائجك ونقاط قوتك وضعفك.</p></div>`;
+  const pct=Math.round(s.qp/s.qn*100);
+  let h=`<div class="stack"><div class="kpis"><div class="card kpi"><span class="muted">أيام التمرين</span><b class="num">${s.days}</b></div><div class="card kpi"><span class="muted">أيام متتالية</span><b class="num">${s.streak}</b></div><div class="card kpi"><span class="muted">عمليات محلولة</span><b class="num">${s.qn}</b></div><div class="card kpi"><span class="muted">نسبة الإتقان</span><b class="num">${pct}%</b></div></div>`;
+  h+=`<section class="card"><h3 style="margin-bottom:.8rem">الإتقان حسب نوع العملية</h3><div class="bars">`+Object.keys(CATS).filter(k=>s.cats[k]).map(k=>{const c=s.cats[k],p=Math.round(c.p/c.n*100);return `<div><div class="bar-l"><span>${CATS[k]} <span class="muted num">(${c.n})</span></span><b class="num">${p}%</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`}).join('')+`</div></section>`;
+  h+=`<section class="card"><h3 style="margin-bottom:.4rem">آخر التمارين</h3><table class="hist"><tbody>`+s.list.slice(0,12).map(r=>`<tr><td>${longDate(r.base)}</td><td class="muted">${r.n===0?'تمرين اليوم':'إضافي '+r.n}</td><td class="num" style="text-align:end"><b>${fmt(r.pts)}</b> / 10${r.done<10?` <span class="muted">(${r.done} منجزة)</span>`:''}</td></tr>`).join('')+`</tbody></table></section></div>`;
+  return h;
+}
+
+const CHEAT=[
+ ['بيع نقدي','الصندوق','المبيعات'],['بيع آجل','العملاء','المبيعات'],['مردودات مبيعات (على الحساب)','مردودات المبيعات','العملاء'],
+ ['استلام شيك آجل من عميل','أوراق القبض','العملاء'],['تحصيل الشيك في البنك','البنك','أوراق القبض'],['ارتداد شيك العميل','العملاء','أوراق القبض'],
+ ['تظهير شيك عميل لمورد','الموردون','أوراق القبض'],['إصدار شيك آجل لمورد','الموردون','أوراق الدفع'],['صرف شيكنا من البنك','أوراق الدفع','البنك'],
+ ['شراء آجل','المخزون','الموردون'],['مردودات مشتريات','الموردون','المخزون'],['قبض من عميل','الصندوق / البنك','العملاء'],
+ ['سداد مورد','الموردون','الصندوق / البنك'],['خصم مسموح به (للعميل)','الصندوق + خصم مسموح به','العملاء'],['خصم مكتسب (من المورد)','الموردون','البنك + خصم مكتسب'],
+ ['تكلفة البضاعة عند البيع','تكلفة البضاعة المباعة','المخزون'],['مسحوبات صاحب المؤسسة','المسحوبات الشخصية','الصندوق']];
+function renderGuide(){
+  let h=`<div class="stack"><section class="card"><h3 style="margin-bottom:.6rem">رحلة الشيك الآجل (PDC)</h3><div class="flow">
+   <div class="box"><b>1. استلام الشيك من العميل</b><small>مدين: أوراق القبض · دائن: العملاء</small></div><div class="arrow">↓</div>
+   <div class="branches">
+    <div class="box"><b>تحصيله في البنك</b><small>مدين: البنك · دائن: أوراق القبض</small></div>
+    <div class="box"><b>تظهيره لمورد</b><small>مدين: الموردون · دائن: أوراق القبض</small></div>
+    <div class="box"><b>ارتداده</b><small>مدين: العملاء · دائن: أوراق القبض</small></div></div></div>
+   <p class="muted" style="margin:.8rem 0 0">وفي الشيكات التي نصدرها نحن: عند الإصدار (مدين الموردون، دائن أوراق الدفع)، وعند الصرف (مدين أوراق الدفع، دائن البنك).</p></section>`;
+  h+=`<section class="card"><h3 style="margin-bottom:.6rem">أشهر القيود</h3><div class="tablewrap"><table class="gtable"><thead><tr><th>العملية</th><th>من ح/ (مدين)</th><th>إلى ح/ (دائن)</th></tr></thead><tbody>`+CHEAT.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')+`</tbody></table></div><p class="muted" style="margin:.7rem 0 0">عند تفعيل الجرد المستمر يُضاف مع كل بيع أو مردود قيد التكلفة (تكلفة البضاعة المباعة / المخزون).</p></section>`;
+  h+=`<section class="card"><h3 style="margin-bottom:.6rem">شجرة الحسابات المستخدمة</h3><div class="stack" style="gap:.8rem">`+ACCTS.map(g=>`<div><div style="margin-bottom:.3rem"><b>${g.g}</b> <span class="muted">· طبيعتها: ${g.nat}</span></div><div class="chips">${g.items.map(i=>`<span class="chip">${i[1]}</span>`).join('')}</div></div>`).join('')+`</div></section></div>`;
+  return h;
+}
+function renderSettings(){
+  const s=store.settings;
+  return `<div class="stack"><section class="card stack"><h3>الإعدادات</h3>
+   <label class="field"><span>رمز العملة في العمليات</span><input type="text" id="cur" value="${esc(s.cur)}" maxlength="12"><span class="muted">مثال: $ أو ل.س أو دينار</span></label>
+   <label class="switch"><input type="checkbox" id="cogs" ${s.cogs?'checked':''}><span><b>الجرد المستمر (تسجيل تكلفة البضاعة مع كل بيع)</b><br><span class="muted">عند إيقافه تُحذف قيود التكلفة، وتبدأ مجموعة اليوم من جديد.</span></span></label>
+   <label class="switch"><input type="checkbox" id="big" ${s.big?'checked':''}><span><b>خط أكبر</b></span></label></section>
+   <section class="card stack"><h3>مسح الإنجاز</h3><p class="muted" style="margin:0">يمسح كل النتائج المحفوظة في هذا الجهاز.</p>
+   ${confirmReset?`<div class="row"><button class="btn danger" data-act="reset-yes">نعم، امسح كل شيء</button><button class="btn" data-act="reset-no">إلغاء</button></div>`:`<div><button class="btn danger" data-act="reset">مسح الإنجاز</button></div>`}</section></div>`;
+}
+
+function render(){
+  renderTabs();
+  const v=document.getElementById('view');
+  v.innerHTML=view==='today'?renderToday():view==='progress'?renderProgress():view==='guide'?renderGuide():renderSettings();
+}
+
+/* ---------- الأحداث ---------- */
+const root=document.querySelector('.wrap');
+root.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const act=b.dataset.act;
+  if(act==='tab'){view=b.dataset.v;confirmReset=false;render();window.scrollTo(0,0);return}
+  if(act==='reset'){confirmReset=true;render();return}
+  if(act==='reset-no'){confirmReset=false;render();return}
+  if(act==='reset-yes'){store.sets={};store.extras={};save();for(const k in drafts)delete drafts[k];confirmReset=false;curQ=null;render();return}
+  if(act==='extra'){const b0=todayBase();store.extras[b0]=(store.extras[b0]||0)+1;activeN=store.extras[b0];curQ=null;save();view='today';render();window.scrollTo(0,0);return}
+  if(act==='goto'){curQ=+b.dataset.i;render();return}
+  const S=curSet(),i=curQ,dr=draftOf(S.key,i),q=S.qs[i];
+  if(act==='add'){dr.rows.push({acc:'',dr:'',cr:''});render();return}
+  if(act==='del'){const k=+b.closest('.jrow').dataset.i;dr.rows.splice(k,1);dr.flags=[];render();return}
+  if(act==='hint'){dr.hint=true;render();return}
+  if(act==='reveal'){S.rec.res[i]={pts:0,rev:true,cat:q.cat};save();render();return}
+  if(act==='next'){curQ=null;if(i<9)curQ=i+1;render();window.scrollTo(0,0);return}
+  if(act==='check'){
+    const r=checkEntry(q,dr.rows);
+    if(r.err){dr.msg={t:'err',s:r.err};dr.flags=[];render();return}
+    if(r.ok){const pts=(dr.att===0&&!dr.hint)?1:0.5;S.rec.res[i]={pts,rev:false,cat:q.cat,att:dr.att+1};save();render();return}
+    dr.att++;dr.flags=r.flags;
+    dr.msg={t:'err',s:`${r.good} من ${r.total} أسطر صحيحة (باللون الأخضر). راجع الأسطر الحمراء${r.missing?'، وربما ينقص القيد حساب':''}، ثم اضغط «تحقق» مرة أخرى.`};
+    render();
+  }
+});
+root.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='cur'){store.settings.cur=t.value.trim()||'$';save();return}
+  if(!t.dataset.f)return;
+  const S=curSet(),dr=draftOf(S.key,curQ),k=+t.closest('.jrow').dataset.i;
+  dr.rows[k][t.dataset.f]=t.value;dr.flags[k]=null;
+  t.closest('.jrow').classList.remove('good','bad');
+  const td=dr.rows.reduce((s,r)=>s+num(r.dr),0),tc=dr.rows.reduce((s,r)=>s+num(r.cr),0);
+  document.getElementById('jtot').innerHTML=`مجموع المدين: <b>${fmt(td)}</b> <span>مجموع الدائن: <b>${fmt(tc)}</b></span>`;
+});
+root.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='setpick'){activeN=+t.value;curQ=null;render();return}
+  if(t.id==='cogs'){store.settings.cogs=t.checked;curQ=null;save();return}
+  if(t.id==='big'){store.settings.big=t.checked;applySize();save();return}
+});
+
+applySize();render();
+</script>
+
+</body></html>
